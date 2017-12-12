@@ -24,19 +24,7 @@ def adjacency_from_edges(edges, number_of_nodes=None):
     return adjacency
 
 
-def load(input_file, verbose=True):
-
-    ending = input_file.split(".")[-1]
-    if ending == "txt":
-        adjacency = load_txt(input_file)
-    elif ending == "gr":
-        adjacency = load_gr(input_file)
-    elif ending == "mat":
-        adjacency = load_mat(input_file)
-    elif ending == "gml" or ending == "graphml":
-        adjacency = load_gml(input_file)
-    elif ending == "tsv":
-        adjacency = load_tsv(input_file)
+def clean_adjacency(adjacency, verbose=True):
 
     if (adjacency.diagonal().sum()) > 0:
         adjacency = adjacency.tolil()
@@ -57,6 +45,24 @@ def load(input_file, verbose=True):
         nz_row = np.unique(nz_row)
         nz_col = np.unique(nz_col)
         adjacency = adjacency[nz_row, :][:, nz_col]
+    
+    return adjacency
+
+def load(input_file, verbose=True):
+
+    ending = input_file.split(".")[-1]
+    if ending == "txt":
+        adjacency = load_txt(input_file)
+    elif ending == "gr":
+        adjacency = load_gr(input_file)
+    elif ending == "mat":
+        adjacency = load_mat(input_file)
+    elif ending == "gml" or ending == "graphml":
+        adjacency = load_gml(input_file)
+    elif ending == "tsv":
+        adjacency = load_tsv(input_file)
+
+    adjacency = clean_adjacency(adjacency)
 
     adjacency = sparse.csr_matrix(adjacency)
     return adjacency
@@ -125,6 +131,39 @@ def load_gml(input_file):
     net = igraph.load(input_file)
     edges = net.get_edgelist()
     adjacency = adjacency_from_edges(edges)
+
+    return adjacency
+
+
+def scale_free_network(number_of_nodes, powerlaw_exponent):
+    sequence = nx.utils.random_sequence.powerlaw_sequence(number_of_nodes,
+                                                          powerlaw_exponent)
+    sequence = np.round(sequence).astype(int)
+
+    # Ensure that the total number of stubs is even
+    if (sequence.sum() % 2) != 0:
+        sequence[np.random.randint(number_of_nodes)] += 1
+
+    # Initiate the network
+    network = nx.configuration_model(sequence)
+
+    adjacency = adjacency_from_edges(list(network.edges()), number_of_nodes)
+
+    adjacency = clean_adjacency(adjacency)
+    adjacency = sparse.csr_matrix(adjacency)
+
+    return adjacency
+
+
+def watts_strogatz_network(number_of_nodes, number_neighbors,
+                            rewiring_probability):
+    network = igraph.Graph.Watts_Strogatz(dim=1, size=number_of_nodes,
+                                          nei=number_neighbors,
+                                          p=rewiring_probability)
+    adjacency = adjacency_from_edges(network.get_edgelist())
+
+    adjacency = clean_adjacency(adjacency)
+    adjacency = sparse.csr_matrix(adjacency)
 
     return adjacency
 
