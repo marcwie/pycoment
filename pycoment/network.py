@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.preprocessing import normalize
-from igraph import Graph
+#from igraph import Graph
 from scipy import sparse
 
 Q_0 = 1. / np.log(2)
@@ -17,7 +17,8 @@ class Network():
         self._adjacency = adjacency
         self._traverse_probabilities = normalize(adjacency, norm='l1', axis=1)
         self._N = adjacency.shape[0] 
-
+        self._triu_indices = np.triu_indices(adjacency.shape[0], k=1)
+        self._normalization = np.log(adjacency.shape[0] - 1)
 
     def entropy(self, normalized=True):
 
@@ -27,7 +28,7 @@ class Network():
 
         if self._cache['entropy'] is not None:
             if normalized:
-                return self._cache['entropy'] / np.log(number_of_nodes-1)
+                return self._cache['entropy'] / self._normalization
             else:
                 return self._cache['entropy'] 
 
@@ -35,7 +36,7 @@ class Network():
         self._cache['entropy'] = entropy
 
         if normalized:
-            entropy = entropy / np.log(number_of_nodes-1)
+            entropy = entropy / self._normalization
 
         return entropy
 
@@ -44,7 +45,9 @@ class Network():
         
         number_of_nodes = self._N
 
-        nonzero_probs = probalities[probalities.nonzero()]
+        #nonzero_probs = probalities[probalities.nonzero()]
+        nonzero_probs = probalities.data.flatten()
+
         entropy = np.array(np.log(nonzero_probs)) * np.array(nonzero_probs)
         entropy = - entropy.sum() / number_of_nodes 
     
@@ -56,29 +59,36 @@ class Network():
         linking_probability = self.link_density()
         number_of_nodes = self._N
 
-        reference_network = Graph.Erdos_Renyi(n=number_of_nodes,
-                                              p=linking_probability,
-                                              directed=False,
-                                              loops=False)
+        ind0, ind1 = self._triu_indices
+        
+        random_indices = np.random.random(len(ind0)) < linking_probability
+        ind0 = ind0[random_indices]
+        ind1 = ind1[random_indices]
+        reference_edges = (np.concatenate((ind0, ind1)), np.concatenate((ind1,
+                                                                        ind0))) 
+        #reference_network = Graph.Erdos_Renyi(n=number_of_nodes,
+        #                                      p=linking_probability,
+        #                                      directed=False,
+        #                                      loops=False)
 
-        reference_edges = np.array(reference_network.get_edgelist()).T
+        #reference_edges = np.array(reference_network.get_edgelist())
+        #reference_edges = reference_edges.T
+
         reference_adjacency = sparse.csr_matrix(
-            (np.ones(reference_edges.shape[1]), reference_edges), 
+            (np.ones(2 * len(ind0)), reference_edges), 
             shape=(number_of_nodes, number_of_nodes))
-        reference_adjacency = reference_adjacency + reference_adjacency.T
+        #reference_adjacency = reference_adjacency + reference_adjacency.T
 
-        assert not (reference_adjacency > 1).nnz
-        assert not reference_adjacency.diagonal().sum() 
+        #assert not (reference_adjacency > 1).nnz
+        #assert not reference_adjacency.diagonal().sum() 
 
         reference_traverse_probs = normalize(reference_adjacency, 
                                              norm='l1', 
                                              axis=1)
-
         return reference_traverse_probs
 
 
     def complexity(self):   
-        
         traverse_probs = self._traverse_probabilities
 
         network_entropy = self.entropy(normalized=False)
@@ -86,10 +96,10 @@ class Network():
 
         reference_probs = self.reference_probabilities()
         reference_entropy = self._shannon_entropy(reference_probs)
-        
+
         joint_probabilities = 0.5 * (traverse_probs + reference_probs)
         joint_entropy = self._shannon_entropy(joint_probabilities)
-        
+
         complexity = normalized_network_entropy * Q_0 
         complexity *= joint_entropy - (network_entropy + reference_entropy) / 2 
         
