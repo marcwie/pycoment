@@ -6,15 +6,6 @@ from scipy.io import loadmat
 import networkx as nx
 
 
-
-
-#def adjacency_from_igraph(igraph_network):
-#    number_of_nodes = igraph_network.vcount()
-#    edges = igraph_network.get_edgelist()
-#    adjacency = adjacency_from_edges(edges, number_of_nodes)
-#    return adjacency
-
-
 def adjacency_from_edges(edges, number_of_nodes=None):
     edges = np.array(edges).T
     if number_of_nodes is None:
@@ -47,6 +38,7 @@ def clean_adjacency(adjacency, verbose=True):
         adjacency = adjacency[nz_row, :][:, nz_col]
     
     return adjacency
+
 
 def load(input_file, verbose=True):
 
@@ -166,23 +158,3 @@ def watts_strogatz_network(number_of_nodes, number_neighbors,
     adjacency = sparse.csr_matrix(adjacency)
 
     return adjacency
-
-
-#def load_networks(inputfolder, networks=[]):
-#    for _, folder in enumerate(inputfolder):
-#        network_folder = load_folder("networks/"+folder)
-#        for __, (name, adjacency) in enumerate(network_folder.items()):
-#            if (adjacency != adjacency.T).sum() > 0:
-#                print name, "Making adjacency symmetric"
-#                adjacency = adjacency + adjacency.T
-#                adjacency[adjacency > 0] = 1
-#            if (adjacency.sum(axis=0) == 0).any():
-#                print name, "Removing empty rows"
-#                nz_row, nz_col = adjacency.nonzero()
-#                nz_row = np.unique(nz_row)
-#                nz_col = np.unique(nz_col)
-#                adjacency = adjacency[nz_row, :][:, nz_col]
-#
-#            networks.append((name, folder, adjacency))
-#
-#    return networks
