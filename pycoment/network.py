@@ -1,6 +1,5 @@
 import numpy as np
 from sklearn.preprocessing import normalize
-#from igraph import Graph
 from scipy import sparse
 
 Q_0 = 1. / np.log(2)
@@ -45,7 +44,6 @@ class Network():
         
         number_of_nodes = self._N
 
-        #nonzero_probs = probalities[probalities.nonzero()]
         nonzero_probs = probalities.data.flatten()
 
         entropy = np.array(np.log(nonzero_probs)) * np.array(nonzero_probs)
@@ -66,21 +64,10 @@ class Network():
         ind1 = ind1[random_indices]
         reference_edges = (np.concatenate((ind0, ind1)), np.concatenate((ind1,
                                                                         ind0))) 
-        #reference_network = Graph.Erdos_Renyi(n=number_of_nodes,
-        #                                      p=linking_probability,
-        #                                      directed=False,
-        #                                      loops=False)
-
-        #reference_edges = np.array(reference_network.get_edgelist())
-        #reference_edges = reference_edges.T
 
         reference_adjacency = sparse.csr_matrix(
             (np.ones(2 * len(ind0)), reference_edges), 
             shape=(number_of_nodes, number_of_nodes))
-        #reference_adjacency = reference_adjacency + reference_adjacency.T
-
-        #assert not (reference_adjacency > 1).nnz
-        #assert not reference_adjacency.diagonal().sum() 
 
         reference_traverse_probs = normalize(reference_adjacency, 
                                              norm='l1', 
