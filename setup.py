@@ -8,4 +8,5 @@ setup(name='pycoment',
       author_email='marcwiedermann@posteo.de',
       license='MIT',
       packages=['pycoment'],
+      install_requires=['sklearn', 'python-igraph', 'networkx']
       )
