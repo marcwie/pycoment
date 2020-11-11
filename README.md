@@ -4,7 +4,7 @@ This is a small package for computing the entropy and the complexity of a given 
 
 The package contains a module ```tools``` that can be imported via ```from pycoment import tools```. It contains functions for parsing input files of different formats, e.g., ```graphml``` and generating adjancency matrices from random network models.
 
-The class ```Network``` can be imported via ```from pycoment import tools``` and allows to compute the corresponding network's (average) complexity and entropy. It can be instantiated with any 2d ```numpy```-array or sparse matrix. See the below example for details. 
+The class ```Network``` can be imported via ```from pycoment import tools``` and allows to compute the corresponding network's (average) complexity and entropy. It can be instantiated with any 2d ```numpy```-array or ```scipy``` sparse matrix. See the below example for details. 
 
 # Installation
 
