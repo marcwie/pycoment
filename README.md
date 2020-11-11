@@ -4,7 +4,9 @@ This is a small package for computing the entropy and the complexity of a given 
 
 The package contains a module ```tools``` that can be imported via ```from pycoment import tools```. It contains functions for parsing input files of different formats, e.g., ```graphml``` and generating adjancency matrices from random network models.
 
-The class ```Network``` can be imported via ```from pycoment import tools``` and allows to compute the corresponding network's (average) complexity and entropy. It can be instantiated with any symmetric adjacency matrix without self-loops provided as a ```sparse.csr_matrix```. See the below example for details. 
+The class ```Network``` can be imported via ```from pycoment import tools``` and allows to compute the corresponding network's (average) complexity and entropy. It can be instantiated with any **symmetric adjacency matrix without self-loops** provided as a ```sparse.csr_matrix```. See the below example for details on further usage. 
+
+If your adjacency matrix does not fulfill the aforementioned requirements you can use ```pycoment.tools.clean_adjacency``` to make it symmetric, remove self-loops and remove isolated nodes. 
 
 # Installation
 
