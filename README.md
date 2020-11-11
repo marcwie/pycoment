@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/114005339.svg)](https://zenodo.org/badge/latestdoi/114005339)
+
 This is a small package for computing the entropy and the complexity of a given (set of) network(s). It implements the metrics that are proposed in the paper [Mapping and discrimination of networks in the complexity-entropy plane](https://journals.aps.org/pre/abstract/10.1103/PhysRevE.96.042304). You can also find an open-access pre-print [here](https://arxiv.org/abs/1704.07599).
 
 # Structure of the package
